@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+# inputrc
+#
+# readline init file settings
+# --------
+
+# cycle through options with shift and shift-tab
+
+TAB: menu-complete
+"\e[Z": menu-complete-backward
+
+# up and down arrows for history search
+
+"\e[A": history-search-backward
+"\e[B": history-search-forward
+
+# settings
+
+# utf-8 input and output instead of escape sequences
+set input-meta on
+set output-meta on
+set convert-meta off
+
+# no "." needed for dotfiles completion
+set match-hidden-files on
+
+# display matches for ambiguous patterns on first tab keypress
+set show-all-if-ambiguous on
+
+# autocompletion for symlinks
+set mark-symlinked-directories on
+
+# prompt when more than 100 completion options available
+set completion-query-items 100
+
+# ignore case when completing
+set completion-ignore-case on
+
+# treat "-" and "_" as the same when completing
+set completion-map-case on
+
+# example: if current line is "ls ~/my/fold", and cursor is
+# at "ls ~/my/fo", you'll get "my/folder" rather than "my/folderld"
+# because it'll be aware of what's been typed, rather than just what's
+# behind the cursor
+set skip-completed-text on
+
+# keep tilde as tilde
+set expand-tilde off
+
+# show more file info, "ls -F" style
+set visible-stats on
+
+# colorize completion options by filetype
+set colored-stats on

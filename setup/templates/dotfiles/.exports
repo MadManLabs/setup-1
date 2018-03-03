@@ -1,0 +1,82 @@
+#!/usr/bin/env bash
+
+# exports
+#
+# global variables
+# --------
+
+# english & utf-8
+
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+
+# set neovim to default editor
+
+export EDITOR="nvim"
+
+# increase history size & ignore duplicates, make sure history is shared (see .bash_prompt for more)
+
+export HISTSIZE="100000"
+export HISTFILESIZE="${HISTSIZE}"
+export HISTTIMEFORMAT="%F %T "
+export HISTCONTROL="ignoredups:erasedups"
+
+# java
+
+export JAVA_HOME
+JAVA_HOME="$(/usr/libexec/java_home)"
+
+# nvm
+
+export NVM_DIR="$HOME/.nvm"
+
+# go
+
+export GOPATH="$HOME/.go"
+
+# rust
+
+export CARGOPATH="$HOME/.cargo"
+
+# pyenv
+
+export PYENV_VIRTUALENV_DISABLE_PROMPT=1
+
+# postgresql
+
+export PGDATA="/usr/local/var/postgres"
+export PGHOST=localhost
+
+# openssl via homebrew
+
+export CFLAGS
+CFLAGS="-I$(brew --prefix openssl)/include"
+
+export CPPFLAGS
+CPPFLAGS="-I$(brew --prefix openssl)/include"
+
+export LDFLAGS
+LDFLAGS="-L$(brew --prefix openssl)/lib"
+
+# fix for mutt colors
+export COLORFGBG="default;default"
+
+# path
+
+path=(
+    "$GOPATH/bin"
+    "$CARGOPATH/bin"
+    "/usr/local/bin"
+    "/usr/local/sbin"
+    "/usr/bin"
+    "/usr/sbin"
+    "/bin"
+    "/sbin"
+    "/opt/X11/bin"
+    "/Library/TeX/texbin"
+)
+
+# shellcheck disable=SC2178
+path=$(printf ":%s" "${path[@]}")
+
+export PATH="${path:1}"

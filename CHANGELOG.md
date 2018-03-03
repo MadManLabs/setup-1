@@ -10,20 +10,9 @@ All notable changes to this project will be documented in this file. The format 
 
 - N/A
 
-## [1.0.0](https://github.com/tylucaskelley/setup/releases/tag/1.0.0) - 01-27-2018
+## [1.0.0](https://github.com/tylucaskelley/setup/releases/tag/1.0.0) - 02-01-2018
 
 ### Added
 
-TBD
-
-### Changed
-
-TBD
-
-### Fixed
-
-TBD
-
-### Removed
-
-TBD
+- First official release! Everything has been completely rewritten, using Python instead of Bash in most places
+  to make things easier to test and maintain

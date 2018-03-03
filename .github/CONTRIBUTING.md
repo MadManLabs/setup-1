@@ -57,7 +57,17 @@ to ensure you aren't duplicating anyone's work. Then, do the following:
 
 Please follow the coding style conventions detailed below:
 
-{guidelines}
+### Python
+
+Install [`flake8`](http://flake8.pycqa.org/en/latest) and ensure that it passes for any `.py` file.
+
+### Bash
+
+Install [`shellcheck`](https://www.shellcheck.net) and ensure that it passes for any `.bash` file.
+
+### Markdown
+
+Install [`markdownlint`](https://github.com/igorshubovych/markdownlint-cli) and ensure that it passes for any `.md` file.
 
 [1]: mailto:tylucaskelley@gmail.com
 [2]: https://github.com/tylucaskelley/setup/issues/new
