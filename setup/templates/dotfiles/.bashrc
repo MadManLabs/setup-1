@@ -104,5 +104,3 @@ if [ -f ~/.bash_prompt ]; then
     # shellcheck disable=SC1090
     source ~/.bash_prompt
 fi
-
-[ -f ~/.fzf.bash ] && source ~/.fzf.bash

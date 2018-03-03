@@ -399,15 +399,10 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
     " emmet
     Plug 'mattn/emmet-vim'
 
-    " file finder
-    Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-    Plug 'junegunn/fzf.vim'
+    " fuzzy file finder
+    Plug 'Shougo/denite.nvim'
 
-    let g:fzf_command_prefix='Fzf'
-
-    " file search and regex search
-    nnoremap <leader>f :FzfFiles<CR>
-    nnoremap <leader>r :FzfAg<CR>
+    nnoremap <leader>f :Denite file_rec<CR>
 
     " css colors
     Plug 'ap/vim-css-color'
