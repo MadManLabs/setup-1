@@ -481,7 +481,7 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
         \ 'css': [ 'stylelint' ],
         \ 'javascript': [ 'eslint' ],
         \ 'markdown': [ 'markdownlint' ],
-        \ 'python': [ 'flake8' ],
+        \ 'python': [ 'pycodestyle' ],
         \ 'ruby': [ 'rubocop' ],
         \ 'sass': [ 'stylelint' ],
         \ 'scss': [ 'stylelint' ]

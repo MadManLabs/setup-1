@@ -56,6 +56,16 @@ Here's what the setup scripts can do:
 8. Configures Tmux
 9. Adds lots of convenient aliases and functions to the shell
 
+## Development setup
+
+TBD
+
+Then, clone the repository:
+
+```bash
+$ git clone git@github.com:tylucaskelley/setup
+```
+
 ## FAQ
 
 1. Can I run this if I've already set up my laptop?
@@ -74,10 +84,6 @@ Here's what the setup scripts can do:
 A Vim window with some open tabs:
 
 [Vim](assets/screenshots/vim.png)
-
-Vim autocompletion, via YouCompleteMe (and Tern.js in this picture):
-
-[Vim autocomplete](assets/screenshots/vim-autocomplete.png)
 
 ## Contributing
 

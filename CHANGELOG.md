@@ -10,7 +10,7 @@ All notable changes to this project will be documented in this file. The format 
 
 - N/A
 
-## [1.0.0](https://github.com/tylucaskelley/setup/releases/tag/1.0.0) - 02-01-2018
+## [1.0.0](https://github.com/tylucaskelley/setup/releases/tag/1.0.0) - TBD
 
 ### Added
 
