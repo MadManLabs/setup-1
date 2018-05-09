@@ -19,5 +19,5 @@ coverage:
 docs:
 	pipenv run pydoc -w setup/
 
-ipython:
+repl:
 	pipenv run ipython

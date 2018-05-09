@@ -10,7 +10,7 @@
 
 ## Prerequisites
 
-- macOS 10.13 (High Sierra)
+- macOS 10.13 (High Sierra) or newer
 
 These scripts have been tested previously on macOS 10.11 and 10.12, but are no longer guaranteed to work on those
 operating systems. Upgrade or run at your own risk!
@@ -19,7 +19,7 @@ operating systems. Upgrade or run at your own risk!
 
 Before installing anything, be sure to read through the source code. Everything is commented thoroughly,
 so it shouldn't take too much time to understand what's happening under the hood. Once you've done that, download
-the Python package:
+the tool:
 
 ```bash
 $ /usr/bin/easy_install -U setup-mac
