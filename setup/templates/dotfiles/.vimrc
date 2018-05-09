@@ -459,7 +459,7 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
 
     " initiate file search
     nnoremap <silent> <leader>f :FzfFiles<CR>
-    nnoremap <silent> <leader>r :FzfAg<C-R><C-W><CR>
+    nnoremap <silent> <leader>r :FzfAg <C-R><C-W><CR>
 
     " match pairs
     Plug 'jiangmiao/auto-pairs'
