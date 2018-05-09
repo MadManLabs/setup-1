@@ -6,7 +6,9 @@
 # --------
 
 # neovim > vim
+
 alias vim='nvim'
+alias vi='nvim'
 
 # allow sudo for aliases
 
@@ -16,6 +18,12 @@ alias sudo='sudo '
 
 alias up='cd ..'
 alias ~='cd ~'
+alias -- -='cd -'
+
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
 
 # verbose output for file and folder actions
 
@@ -31,6 +39,11 @@ alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
+# silver searcher
+
+alias ags='ag -iQ'
+alias agf='ag -l'
+
 # usage info
 
 alias cpu='top -o cpu'
@@ -40,6 +53,10 @@ alias mem='top -o mem'
 
 alias ip="dig +short myip.opendns.com @resolver1.opendns.com"
 alias localip="ipconfig getifaddr en0"
+
+# git
+
+alias g='git'
 
 # misc. tools
 

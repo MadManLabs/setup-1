@@ -98,6 +98,16 @@ if command -v pipenv &> /dev/null; then
     eval "$(pipenv --completion)"
 fi
 
+# completion for macos "defaults" command
+
+complete -W "NSGlobalDomain" defaults;
+
+# completion for git alias "g"
+
+if type _git &> /dev/null && [ -f /usr/local/etc/bash_completion.d/git-completion.bash ]; then
+    complete -o default -o nospace -F _git g;
+fi;
+
 # bash prompt
 
 if [ -f ~/.bash_prompt ]; then

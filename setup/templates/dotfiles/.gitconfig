@@ -5,10 +5,13 @@
 
 [alias]
     # get current commit hash
-    head = "rev-parse HEAD"
+    head = rev-parse HEAD
+
+    # diff between last commit and current state
+    d = !"git diff-index --quiet HEAD -- || clear; git --no-pager diff --patch-with-stat"
 
     # generate project-specific .gitignore
-    ignore = "!gi() { curl -L -s https://www.gitignore.io/api/$@ ;}; gi"
+    ignore = "!f() { curl -L -s https://www.gitignore.io/api/$@ ;}; f"
 
     # grab .github folder from tylucaskelley/github-templates and fill in repo info
     tpl = "!f() { bash -c \"$(curl -s https://raw.githubusercontent.com/tylucaskelley/github-templates/master/install.sh)\"; }; f"
@@ -16,14 +19,20 @@
     # get url for remote origin
     o = "!f() { git remote show origin | grep Fetch | cut -f 5 -d ' '; }; f"
 
-    # nicely formatted view of last 25 commits
-    lg = log --all --graph --abbrev-commit --date=relative --format=format:'%C(red)%h%C(reset) %C(blue)(%ar)%C(reset) - %C(white)%s%C(reset)'
+    # better log
+    l = log --oneline --decorate --graph --date=relative --abbrev=commit --pretty=format:'%C(yellow)%h%Creset - %s %C(red)%d%Creset %Cgreen(%cr BY %ae)%Creset
 
-    # commit all changes to current branch
-    ca = "!f() { git add -A && git commit -m \"$1\"; }; f"
+    # update master and switch back to previous branch
+    up = "!git checkout master && git fetch --prune origin && git rebase origin/master && git checkout -"
+
+    # add all files to stage and commit changes w/ message
+    ca = "!f() { [ ! -z \"$1\" ] && git add -A && git commit -m \"$1\"; }; f"
 
     # switch to branch, create if it doesn't exist
-    br = "!f() { git checkout -b \"$1\" 2> /dev/null || git checkout \"$1\"; }; f"
+    br = "!f() { git checkout -b \"${1:-master}\" 2> /dev/null || git checkout \"${1:-master}\"; }; f"
+
+    # interactive rebase on a branch, defaults to master
+    rb = "!f() { git rebase -i \"${1:-master}\"; }; f"
 
     # sort contributors by number of commits
     rank = shortlog -sn --no-merges
@@ -40,11 +49,11 @@
     # set upstream of <branch> to origin/<branch>
     su = "!f() { git branch --set-upstream-to=origin/\"$1\" \"$1\"; }; f"
 
+    # stash all
+    sa = stash save --include-untracked
+
     # list all user-defined aliases
     a = config --get-regexp '^alias.'
-[apply]
-    # find whitespace errors
-    whitespace = fix
 [color]
     # use colors in git commands
     ui = auto
@@ -62,11 +71,22 @@
     changed = green
     untracked = cyan
 [core]
-    # custom .gitignore
+    # custom .gitignore and .gitattributes
     excludesfile = ~/.gitignore
+    attributesfile = ~/.gitattributes
+
+    # don't ignore case due to case-sensitive imports in some projects
+    ignorecase = false
 
     # catch trailing whitespace & spaces before tabs
     whitespace = space-before-tab,trailing-space
+
+    # make git rebase safer on macos
+    trustctime = false
+[diff]
+    # detect copies and renames
+    renames = copies
+    mnemonicprefix = true
 [help]
     # fix & execute misspelled commands
     autocorrect = 1
@@ -77,8 +97,8 @@
     # for github desktop app
     required = true
     process = git-lfs filter-process
-    lean = git-lfs clean -- %f
+    clean = git-lfs clean -- %f
     smudge = git-lfs smudge -- %f
 [user]
-    name = {name}
-    email = {email}
+    name = Ty-Lucas Kelley
+    email = tylucaskelley@gmail.com

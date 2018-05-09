@@ -42,7 +42,7 @@ function ask() {
         return 1
     fi
 
-    read -r -e -p "$1 "
+    read -r -e -p "$1 (y/n) "
     echo ""
 
     if [[ "$REPLY" =~ ^[Yy]$ ]]; then
@@ -208,7 +208,7 @@ function mux() {
         tmux split-window -v -t "$TMUX_SESSION:0"
 
         # set up vim in full screen window
-        tmux new-window -t "$TMUX_SESSION:1" -n "vim"
+        tmux new-window -t "$TMUX_SESSION:1" -n "editor"
         tmux send-keys -t "$TMUX_SESSION:1" vim C-m
 
         # two panes split 25% left and 75% right, with computer stats in left pane
@@ -243,303 +243,310 @@ function server() {
 # Usage: update
 #
 function update() (
-cd || return 1
+    cd || return 1
 
-function __header() {
-    echo -e "----------------------------------------"
-    echo "$@"
-    echo -e "----------------------------------------"
-}
+    function __header() {
+        echo -e "----------------------------------------"
+        echo "$@"
+        echo -e "----------------------------------------"
+    }
 
-# --------
-# macOS
-# --------
+    # -----
+    # macOS
+    # -----
 
-macos_status=0
-print -b -l 1 -- "$(__header 'Step 1. macOS updates')\n"
+    macos_status=0
+    print -b -l 1 -- "$(__header 'macOS updates')\n"
 
-if ask "Check for and install macOS updates? (y/n)"; then
-    if ask "Install all available updates? (y/n)"; then
-        softwareupdate -ia --verbose
-    else
-        if ask "Install only recommended updates? (y/n)"; then
-            softwareupdate -ir --verbose
+    if ask "Check for and install macOS updates?"; then
+        if ask "Install all available updates?"; then
+            softwareupdate -ia --verbose
         else
-            macos_status=2
-        fi
-    fi
-else
-    macos_status=2
-fi
-
-if [ "$?" == "1" ]; then
-    macos_status=1
-fi
-
-if [ "$macos_status" == 0 ]; then
-    print -b -l 4 "\nInstalled macOS updates.\n"
-elif [ "$macos_status" == 1 ]; then
-    print -b -l 3 "\nSomething went wrong while updating macOS. Check log output above for details.\n"
-else
-    print -b -l 2 "No macOS updates were installed.\n"
-fi
-
-# --------
-# Homebrew
-# --------
-
-brew_status=0
-print -b -l 1 -- "$(__header 'Step 2. Homebrew packages')\n"
-
-# if pyenv is installed, switch to system python for brew builds
-if command -v pyenv &> /dev/null; then
-    current_python="$(pyenv global)"
-    pyenv global system
-fi
-
-if command -v brew &> /dev/null; then
-
-    if ask "Update all Homebrew packages? (y/n)"; then
-        brew update && brew upgrade && brew cleanup
-    elif ask "Update Homebrew packages individually? (y/n)"; then
-        brew update
-
-        for pkg in $(brew outdated --quiet); do
-            if ask "Update $pkg"; then
-                brew upgrade "$pkg"
+            if ask "Install only recommended updates?"; then
+                softwareupdate -ir --verbose
+            else
+                macos_status=2
             fi
-        done
-
-        brew cleanup
+        fi
     else
-        brew_status=2
+        macos_status=2
     fi
 
     if [ "$?" == "1" ]; then
-        brew_status=1
+        macos_status=1
     fi
 
-    if [ "$brew_status" == 0 ]; then
-        print -b -l 4 "\nInstalled Homebrew packages.\n"
-    elif [ "$brew_status" == 1 ]; then
-        print -b -l 3 "\nSomething went wrong while updating Homebrew packages. Check log output above for details.\n"
+    if [ "$macos_status" == 0 ]; then
+        print -b -l 4 "\nInstalled macOS updates.\n"
+    elif [ "$macos_status" == 1 ]; then
+        print -b -l 3 "\nSomething went wrong while updating macOS. Check log output above for details.\n"
     else
-        print -b -l 2 "No Homebrew packages were installed.\n"
+        print -b -l 2 "No macOS updates were installed.\n"
     fi
-else
-    print -b -l 2 "Homebrew not installed, continuing...\n"
-fi
 
-# --------
-# Cask apps
-# --------
+    # --------
+    # Homebrew
+    # --------
 
-cask_status=0
-print -b -l 1 -- "$(__header 'Step 3. Homebrew Cask apps')\n"
+    brew_status=0
+    print -b -l 1 -- "$(__header 'Homebrew packages')\n"
 
-if brew cu --help &> /dev/null; then
-    if ask "Update all Mac apps installed with Homebrew Cask? (y/n)"; then
-        brew cu --all --yes
-    elif ask "Approve app updates individually? (y/n)"; then
-        brew cu --all
+    # if pyenv is installed, switch to system python for brew builds
+    if command -v pyenv &> /dev/null; then
+        current_python="$(pyenv global)"
+        pyenv global system
+    fi
+
+    if command -v brew &> /dev/null; then
+
+        if ask "Update all Homebrew packages?"; then
+            brew update && brew upgrade && brew cleanup
+        elif ask "Update Homebrew packages individually?"; then
+            brew update
+
+            for pkg in $(brew outdated --quiet); do
+                if ask "Update $pkg?"; then
+                    brew upgrade "$pkg"
+                fi
+            done
+
+            brew cleanup
+        else
+            brew_status=2
+        fi
+
+        if [ "$?" == "1" ]; then
+            brew_status=1
+        fi
+
+        if [ "$brew_status" == 0 ]; then
+            print -b -l 4 "\nInstalled Homebrew packages.\n"
+        elif [ "$brew_status" == 1 ]; then
+            print -b -l 3 "\nSomething went wrong while updating Homebrew packages. Check log output above for details.\n"
+        else
+            print -b -l 2 "No Homebrew packages were installed.\n"
+        fi
     else
-        cask_status=2
+        print -b -l 2 "Homebrew not installed, continuing...\n"
     fi
 
-    if [ "$?" == "1" ]; then
-        cask_status=1
-    fi
+    # ---------
+    # Cask apps
+    # ---------
 
-    if [ "$cask_status" == 0 ]; then
-        print -b -l 4 "\nInstalled Mac apps.\n"
-    elif [ "$cask_status" == 1 ]; then
-        print -b -l 3 "\nSomething went wrong while updating Mac apps. Check log output above for details.\n"
+    cask_status=0
+    print -b -l 1 -- "$(__header 'macOS apps')\n"
+
+    if brew cu --help &> /dev/null; then
+        if ask "Update all macOS apps installed with Homebrew?"; then
+            brew cu --all --yes
+        elif ask "Approve app updates individually?"; then
+            brew cu --all
+        else
+            cask_status=2
+        fi
+
+        if [ "$?" == "1" ]; then
+            cask_status=1
+        fi
+
+        if [ "$cask_status" == 0 ]; then
+            print -b -l 4 "\nInstalled macOS apps.\n"
+        elif [ "$cask_status" == 1 ]; then
+            print -b -l 3 "\nSomething went wrong while updating macOS apps. Check log output above for details.\n"
+        else
+            print -b -l 2 "No macOS app updates were installed.\n"
+        fi
     else
-        print -b -l 2 "No Mac app updates were installed.\n"
+        print -b -l 2 "Homebrew extension 'cu' not installed. Install with 'brew tap buo/cask-upgrade'. Continuing...\n"
     fi
-else
-    print -b -l 2 "Homebrew extension 'cu' not installed. Install with 'brew tap buo/cask-upgrade'. Continuing...\n"
-fi
 
-# --------
-# Node.js
-# --------
+    # -------
+    # Node.js
+    # -------
 
-nodejs_status=0
-print -b -l 1 -- "$(__header 'Step 4. Node.js modules')\n"
+    nodejs_status=0
+    print -b -l 1 -- "$(__header 'Node.js modules')\n"
 
-if command -v npm &> /dev/null; then
-    node_info="node $(node -v): $(which node)"
-    npm_info="npm $(npm -v): $(which npm)"
-    npm_packages="$(npm outdated -g --parseable --depth 0 | cut -d : -f 4)"
+    if command -v npm &> /dev/null; then
+        node_info="node $(node -v): $(which node)"
+        npm_info="npm $(npm -v): $(which npm)"
+        npm_packages="$(npm outdated -g --parseable --depth 0 | cut -d : -f 4)"
 
-    print -b -l 2 "Make sure you want to update this Node.js version before continuing:"
-    print -b -l 1 "${node_info}"
-    print -b -l 1 "${npm_info}\n"
+        print -b -l 2 "Make sure you want to update this Node.js version before continuing:"
+        print -b -l 1 "${node_info}"
+        print -b -l 1 "${npm_info}\n"
 
-    if ask "Update all global Node.js modules? (y/n)"; then
-        for pkg in $npm_packages; do
-            npm install -g "$pkg"
-        done
-    elif ask "Update global Node.js modules individually? (y/n)"; then
-        for pkg in $npm_packages; do
-            if ask "update $pkg? (y/n)"; then
+        if ask "Update all global Node.js modules?"; then
+            for pkg in $npm_packages; do
                 npm install -g "$pkg"
-            fi
-        done
+            done
+        elif ask "Update global Node.js modules individually?"; then
+            for pkg in $npm_packages; do
+                if ask "update $pkg?"; then
+                    npm install -g "$pkg"
+                fi
+            done
+        else
+            nodejs_status=2
+        fi
+
+        if [ "$?" == "1" ]; then
+            nodejs_status=1
+        fi
+
+        if [ "$nodejs_status" == 0 ]; then
+            print -b -l 4 "\nUpdated Node.js modules.\n"
+        elif [ "$nodejs_status" == 1 ]; then
+            print -b -l 3 "\nSomething went wrong while updating Node.js modules. Check log output above for details.\n"
+        else
+            print -b -l 2 "Node.js modules were not updated.\n"
+        fi
     else
-        nodejs_status=2
+        print -b -l 2 "Node.js is not installed, continuing...\n"
     fi
 
-    if [ "$?" == "1" ]; then
-        nodejs_status=1
-    fi
+    # ----
+    # Ruby
+    # ----
 
-    if [ "$nodejs_status" == 0 ]; then
-        print -b -l 4 "\nUpdated Node.js modules.\n"
-    elif [ "$nodejs_status" == 1 ]; then
-        print -b -l 3 "\nSomething went wrong while updating Node.js modules. Check log output above for details.\n"
-    else
-        print -b -l 2 "Node.js modules were not updated.\n"
-    fi
-else
-    print -b -l 2 "Node.js is not installed, continuing...\n"
-fi
+    ruby_status=0
+    print -b -l 1 -- "$(__header 'Ruby gems')\n"
 
-# --------
-# Ruby
-# --------
+    if command -v gem &> /dev/null; then
+        gem_info="gem $(gem -v): $(which gem)"
+        ruby_info="$(ruby -v | cut -d ' ' -f 1 -f 2): $(which ruby)"
+        gem_packages="$(gem outdated | cut -d ' ' -f 1)"
 
-ruby_status=0
-print -b -l 1 -- "$(__header 'Step 5. Ruby gems')\n"
+        print -b -l 2 "Make sure you want to update this Ruby version before continuing:"
+        print -b -l 1 "${ruby_info}"
+        print -b -l 1 "${gem_info}\n"
 
-if command -v gem &> /dev/null; then
-    gem_info="gem $(gem -v): $(which gem)"
-    ruby_info="$(ruby -v | cut -d ' ' -f 1 -f 2): $(which ruby)"
-    gem_packages="$(gem outdated | cut -d ' ' -f 1)"
-
-    print -b -l 2 "Make sure you want to update this Ruby version before continuing:"
-    print -b -l 1 "${ruby_info}"
-    print -b -l 1 "${gem_info}\n"
-
-    if ask "Update all Ruby gems? (y/n)"; then
-        for pkg in $gem_packages; do
-            gem update "$pkg"
-        done
-    elif ask "Update Ruby gems individually? (y/n)"; then
-        for pkg in $gem_packages; do
-            if ask "Update $pkg? (y/n)"; then
+        if ask "Update all Ruby gems?"; then
+            for pkg in $gem_packages; do
                 gem update "$pkg"
-            fi
-        done
-    else
-        ruby_status=2
-    fi
-
-    if [ "$?" == "1" ]; then
-        ruby_status=1
-    fi
-
-    if [ "$ruby_status" == 0 ]; then
-        print -b -l 4 "\nUpdated Ruby gems.\n"
-    elif [ "$ruby_status" == 1 ]; then
-        print -b -l 3 "\nSomething went wrong while updating Ruby gems. Check log output above for details.\n"
-    else
-        print -b -l 2 "Ruby gems were not updated.\n"
-    fi
-else
-    print -b -l 2 "Ruby could not be found, continuing...\n"
-fi
-
-# --------
-# Python (2 and 3)
-# --------
-
-python2_status=0
-python3_status=0
-print -b -l 1 -- "$(__header 'Step 6. Python (2 and 3)')\n"
-
-if command -v pyenv &> /dev/null; then
-    # if pyenv, version was switched to system for brew update. need to switch back
-    # shellcheck disable=SC2086
-    pyenv global $current_python
-
-    python2_info="$(pip2 --version)"
-    pip2_packages="$(pip2 list --outdated --format=legacy | cut -d ' ' -f 1)"
-
-    print -b -l 2 "Make sure you want to update this Python 2 version before continuing:"
-    print -b -l 1 "${python2_info}\n"
-
-    if command -v pip2 &> /dev/null; then
-        if ask "Update all Python 2 packages? (y/n)"; then
-            for pkg in $pip2_packages; do
-                pip2 install --upgrade "$pkg"
             done
-        elif ask "Update Python 2 packages individually? (y/n)"; then
-            for pkg in $pip2_packages; do
-                if ask "Update $pkg? (y/n)"; then
+        elif ask "Update Ruby gems individually?"; then
+            for pkg in $gem_packages; do
+                if ask "Update $pkg?"; then
+                    gem update "$pkg"
+                fi
+            done
+        else
+            ruby_status=2
+        fi
+
+        if [ "$?" == "1" ]; then
+            ruby_status=1
+        fi
+
+        if [ "$ruby_status" == 0 ]; then
+            print -b -l 4 "\nUpdated Ruby gems.\n"
+        elif [ "$ruby_status" == 1 ]; then
+            print -b -l 3 "\nSomething went wrong while updating Ruby gems. Check log output above for details.\n"
+        else
+            print -b -l 2 "Ruby gems were not updated.\n"
+        fi
+    else
+        print -b -l 2 "Ruby could not be found, continuing...\n"
+    fi
+
+    # ----------------
+    # Python (2 and 3)
+    # ----------------
+
+    python2_status=0
+    python3_status=0
+    print -b -l 1 -- "$(__header 'Python packages')\n"
+
+    if command -v pyenv &> /dev/null; then
+        # if pyenv, version was switched to system for brew update. need to switch back
+        # shellcheck disable=SC2086
+        pyenv global $current_python
+
+        python2_info="$(python2 --version 2>&1): $(which python2)"
+        pip2_info="$(pip2 --version)"
+        pip2_packages="$(pip2 list --no-cache-dir --outdated --format=columns | cut -d ' ' -f 1 | awk '{if(NR>2)print}')"
+
+        print -b -l 2 "Make sure you want to update this Python 2 version before continuing:"
+        print -b -l 1 "${python2_info}"
+        print -b -l 1 "${pip2_info}\n"
+
+        if command -v pip2 &> /dev/null; then
+            if ask "Update all Python 2 packages?"; then
+                for pkg in $pip2_packages; do
                     pip2 install --upgrade "$pkg"
-                fi
-            done
+                done
+            elif ask "Update Python 2 packages individually?"; then
+                for pkg in $pip2_packages; do
+                    if ask "Update $pkg?"; then
+                        pip2 install --upgrade "$pkg"
+                    fi
+                done
+            else
+                python2_status=2
+            fi
+
+            if [ "$?" == "1" ]; then
+                python2_status=1
+            fi
+
+            if [ "$python2_status" == 0 ]; then
+                print -b -l 4 "\nUpdated Python 2 packages.\n"
+            elif [ "$python2_status" == 1 ]; then
+                print -b -l 3 "\nSomething went wrong while updating Python 2 packages. Check log output above for details.\n"
+            else
+                print -b -l 2 "Python 2 packages were not updated.\n"
+            fi
         else
-            python2_status=2
+            print -b -l 2 "Python 2 could not be found, continuing..."
         fi
 
-        if [ "$?" == "1" ]; then
-            python2_status=1
-        fi
+        python3_info="$(python3 --version 2>&1): $(which python3)"
+        pip3_info="$(pip3 --version)"
+        pip3_packages="$(pip3 list --no-cache-dir --outdated --format=columns | cut -d ' ' -f 1 | awk '{if(NR>2)print}')"
 
-        if [ "$python2_status" == 0 ]; then
-            print -b -l 4 "\nUpdated Python 2 packages.\n"
-        elif [ "$python2_status" == 1 ]; then
-            print -b -l 3 "\nSomething went wrong while updating Python 2 packages. Check log output above for details.\n"
-        else
-            print -b -l 2 "Python 2 packages were not updated.\n"
-        fi
-    else
-        print -b -l 2 "Python 2 could not be found, continuing..."
-    fi
+        print -b -l 2 "Make sure you want to update this Python 3 version before continuing:"
+        print -b -l 1 "${python3_info}"
+        print -b -l 1 "${pip3_info}\n"
 
-    python3_info="$(pip3 --version)"
-    pip3_packages="$(pip3 list --outdated --format=legacy | cut -d ' ' -f 1)"
-
-    print -b -l 2 "Make sure you want to update this Python 3 version before continuing:"
-    print -b -l 1 "${python3_info}\n"
-
-    if command -v pip3 &> /dev/null; then
-        if ask "Update all Python 3 packages? (y/n)"; then
-            for pkg in $pip3_packages; do
-                pip3 install --upgrade "$pkg"
-            done
-        elif ask "Update Python 3 packages individually? (y/n)"; then
-            for pkg in $pip3_packages; do
-                if ask "Update $pkg? (y/n)"; then
+        if command -v pip3 &> /dev/null; then
+            if ask "Update all Python 3 packages?"; then
+                for pkg in $pip3_packages; do
                     pip3 install --upgrade "$pkg"
-                fi
-            done
-        else
-            python3_status=2
-        fi
+                done
+            elif ask "Update Python 3 packages individually?"; then
+                for pkg in $pip3_packages; do
+                    if ask "Update $pkg?"; then
+                        pip3 install --upgrade "$pkg"
+                    fi
+                done
+            else
+                python3_status=2
+            fi
 
-        if [ "$?" == "1" ]; then
-            python3_status=1
-        fi
+            if [ "$?" == "1" ]; then
+                python3_status=1
+            fi
 
-        if [ "$python3_status" == 0 ]; then
-            print -b -l 4 "\nUpdated Python 3 packages.\n"
-        elif [ "$python3_status" == 1 ]; then
-            print -b -l 3 "\nSomething went wrong while updating Python 3 packages. Check log output above for details.\n"
+            if [ "$python3_status" == 0 ]; then
+                print -b -l 4 "\nUpdated Python 3 packages.\n"
+            elif [ "$python3_status" == 1 ]; then
+                print -b -l 3 "\nSomething went wrong while updating Python 3 packages. Check log output above for details.\n"
+            else
+                print -b -l 2 "Python 3 packages were not updated.\n"
+            fi
         else
-            print -b -l 2 "Python 3 packages were not updated.\n"
+            print -b -l 2 "Python 3 could not be found, continuing..."
         fi
     else
-        print -b -l 2 "Python 3 could not be found, continuing..."
+        print -b -l 2 "Python (via pyenv) could not be found, continuing...\n"
     fi
-else
-    print -b -l 2 "Python (via pyenv) could not be found, continuing...\n"
-fi
 
-# done
-print -b -l 4 "\nFinished updates."
-print -b -l 1 "Something go wrong?\nFile a bug report: https://github.com/tylucaskelley/setup/issues/new\n"
+    # done
+
+    cd ~- || exit
+
+    print -b -l 4 "\nFinished updates."
+    print -b -l 1 "Something go wrong?\nFile a bug report: https://github.com/tylucaskelley/setup/issues/new\n"
 )
