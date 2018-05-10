@@ -67,6 +67,7 @@ alias finder='open -a Finder .'
 alias flac2mp3='for f in *.flac; do ffmpeg -i "$f" -aq 1 "${f%flac}mp3"; done'
 alias notify='tput bel'
 alias path='echo -e ${PATH//:/\\n}'
+alias r='bundle exec rails'
 alias space='df -P -kHl'
 
 # brew
