@@ -418,6 +418,9 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
     " files
     " -----
 
+    " unix commands like :Rename and :SudoEdit
+    Plug 'tpope/vim-eunuch'
+
     " autocomplete in search
     Plug 'vim-scripts/SearchComplete'
 
