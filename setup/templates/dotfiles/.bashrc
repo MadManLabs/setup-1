@@ -95,7 +95,8 @@ fi
 # pipenv
 
 if command -v pipenv &> /dev/null; then
-    eval "$(pipenv --completion)"
+    # TODO: uncomment this after new pipenv released - issue #2479 on github
+     echo 'eval "$(pipenv --completion)"'
 fi
 
 # completion for macos "defaults" command

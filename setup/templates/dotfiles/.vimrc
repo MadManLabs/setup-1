@@ -6,7 +6,7 @@ set fileencoding=utf-8
 " Description: Vim / Neovim configuration
 " Author: Ty-Lucas Kelley <tylucaskelley@gmail.com>
 " Source: https://tylucaskelley.com
-" Last Modified: 09 May 2018
+" Last Modified: 26 June 2018
 " --------
 
 " -------- sections --------
@@ -561,12 +561,19 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
 
     " kick off tests
     Plug 'tpope/vim-dispatch'
+
+    let g:dispatch_quickfix_height=20
+
     Plug 'janko-m/vim-test'
 
     nnoremap <leader>t :TestFile<CR>
     nnoremap <leader>T :TestNearest<CR>
 
     let g:test#strategy='dispatch'
+
+    " ruby-specific settings
+    let g:test#ruby#use_spring_binstub=1
+    let g:test#ruby#rspec#options='--format documentation'
 
     " -----
     " misc.
