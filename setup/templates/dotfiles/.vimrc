@@ -3,10 +3,10 @@ set fileencoding=utf-8
 
 " --------
 " File: .vimrc
-" Description: Vim / Neovim configuration
+" Description: Vim configuration
 " Author: Ty-Lucas Kelley <tylucaskelley@gmail.com>
 " Source: https://tylucaskelley.com
-" Last Modified: 26 June 2018
+" Last Modified: 1 August 2018
 " --------
 
 " -------- sections --------
@@ -47,9 +47,6 @@ filetype plugin indent on
 " kill search result highlighting
 nnoremap <silent> <CR> :noh<CR><CR>
 
-" toggle spellcheck
-nnoremap <leader>s :setlocal spell! spelllang=en_us<CR>
-
 " select entire file's contents
 nnoremap <leader>a ggVG
 
@@ -74,12 +71,12 @@ nnoremap <C-k> <C-w>k
 " initiate commands with spacebar
 nnoremap <Space> :
 
+" initiate search with <Tab> in normal mode
+nnoremap <Tab> /
+
 " move between tabs with Shift-l and Shift-h
 nnoremap <S-l> gt
 nnoremap <S-h> gT
-
-" initiate a search with <Tab> in normal mode
-nnoremap <Tab> /
 
 " close all open buffers
 nnoremap <leader>x :bufdo bd<CR>
@@ -100,17 +97,21 @@ nnoremap <leader>w :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
 " re-indent entire file
 nnoremap <leader>i mzgg=G`z`
 
-" use f to toggle fold open/close
-nnoremap f za
+" toggle fold open/close
+nnoremap <leader>, za
 
-" toggle spellcheck
-nnoremap <leader>s :setlocal spell! spelllang=en_us<CR>
+" start substitution
+nnoremap <leader>s :%s/\<<C-r><C-w>\>/
 
 " select entire file's contents
 nnoremap <leader>a ggVG
 
 " copy entire file's contents to system clipboard and return to previous cursor position
 nnoremap <leader>c gg"+yG``
+
+
+" turn paste mode off
+nnoremap <leader>p :set nopaste<CR>
 
 " adjust indentation
 inoremap <S-Tab> <C-D>
@@ -399,10 +400,18 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
 
     let g:startify_bookmarks=[ '~/.vimrc', '~/.bashrc' ]
 
+    " merge two tabs
+    Plug 'vim-scripts/Tabmerge'
+
+    nnoremap <leader>tm :execute "Tabmerge left"<CR>
+
     " show indent guides
     Plug 'Yggdroot/indentLine'
 
     let g:indentLine_setColors=0
+
+    " show yanked region
+    Plug 'machakann/vim-highlightedyank'
 
     " ---
     " git
@@ -421,8 +430,8 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
     " unix commands like :Rename and :SudoEdit
     Plug 'tpope/vim-eunuch'
 
-    " autocomplete in search
-    Plug 'vim-scripts/SearchComplete'
+    " bookmark lines and comment
+    Plug 'MattesGroeger/vim-bookmarks'
 
     " add in keywords to close code blocks (e.g. endif, end, done, etc.)
     Plug 'tpope/vim-endwise'
@@ -444,25 +453,38 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
 
     let g:fzf_command_prefix='Fzf'
 
-    let g:fzf_colors = {
-        \ 'fg':      ['fg', 'Normal'],
-        \ 'bg':      ['bg', 'Normal'],
-        \ 'hl':      ['fg', 'Comment'],
-        \ 'fg+':     ['fg', 'CursorLine', 'CursorColumn', 'Normal'],
-        \ 'bg+':     ['bg', 'CursorLine', 'CursorColumn'],
-        \ 'hl+':     ['fg', 'Statement'],
-        \ 'info':    ['fg', 'PreProc'],
-        \ 'border':  ['fg', 'Ignore'],
-        \ 'prompt':  ['fg', 'Conditional'],
-        \ 'pointer': ['fg', 'Exception'],
-        \ 'marker':  ['fg', 'Keyword'],
-        \ 'spinner': ['fg', 'Label'],
-        \ 'header':  ['fg', 'Comment']
+    let g:fzf_colors={
+        \ 'fg':      [ 'fg', 'Normal' ],
+        \ 'bg':      [ 'bg', 'Normal' ],
+        \ 'hl':      [ 'fg', 'Comment' ],
+        \ 'fg+':     [ 'fg', 'CursorLine', 'CursorColumn', 'Normal' ],
+        \ 'bg+':     [ 'bg', 'CursorLine', 'CursorColumn' ],
+        \ 'hl+':     [ 'fg', 'Statement' ],
+        \ 'info':    [ 'fg', 'PreProc' ],
+        \ 'border':  [ 'fg', 'Ignore' ],
+        \ 'prompt':  [ 'fg', 'Conditional' ],
+        \ 'pointer': [ 'fg', 'Exception' ],
+        \ 'marker':  [ 'fg', 'Keyword' ],
+        \ 'spinner': [ 'fg', 'Label' ],
+        \ 'header':  [ 'fg', 'Comment' ]
     \ }
+
+    let g:fzf_history_dir='~/.local/share/fzf-history'
 
     " initiate file search
     nnoremap <silent> <leader>f :FzfFiles<CR>
-    nnoremap <silent> <leader>r :FzfAg <C-R><C-W><CR>
+    nnoremap <silent> <leader>r :FzfRg<CR>
+
+    command! -bang -nargs=? -complete=dir FzfFiles
+        \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+
+    command! -bang -nargs=* FzfRg
+        \ call fzf#vim#grep(
+            \ 'rg --column --line-number --no-heading --color=always --smart-case '.shellescape(<q-args>),
+            \ 1,
+            \ fzf#vim#with_preview('right:50%'),
+            \ <bang>0
+        \ )
 
     " match pairs
     Plug 'jiangmiao/auto-pairs'
@@ -480,14 +502,15 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
 
     let g:ale_open_list=1
     let g:ale_echo_msg_format='[%linter%] %s'
-    let g:ale_linters = {
+    let g:ale_linters_explicit=1
+    let g:ale_linters={
         \ 'css': [ 'stylelint' ],
         \ 'javascript': [ 'eslint' ],
         \ 'markdown': [ 'markdownlint' ],
         \ 'python': [ 'pycodestyle' ],
         \ 'ruby': [ 'rubocop' ],
         \ 'sass': [ 'stylelint' ],
-        \ 'scss': [ 'stylelint' ]
+        \ 'scss': [ 'prettier' ]
     \ }
 
     " -------------------------
@@ -499,7 +522,7 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
     Plug 'mattn/emmet-vim'
     Plug 'alvan/vim-closetag'
 
-    let g:closetag_filenames='*.html,*.xhtml,*.phtml,*.xml,*.vue,*.jsx,*.js'
+    let g:closetag_filenames='*.html,*.xhtml,*.phtml,*.xml,*.vue,*.jsx,*.js,*.erb'
 
     " javascript / typescript
     Plug 'pangloss/vim-javascript'
@@ -560,24 +583,20 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
     " -------
 
     " kick off tests
-    Plug 'tpope/vim-dispatch'
-
-    let g:dispatch_quickfix_height=20
-
     Plug 'janko-m/vim-test'
+    Plug 'tpope/vim-dispatch'
 
     nnoremap <leader>t :TestFile<CR>
     nnoremap <leader>T :TestNearest<CR>
 
-    let g:test#strategy='dispatch'
-
-    " ruby-specific settings
-    let g:test#ruby#use_spring_binstub=1
-    let g:test#ruby#rspec#options='--format documentation'
+    let test#strategy='dispatch'
 
     " -----
     " misc.
     " -----
+
+    " standardize vim async api
+    Plug 'prabirshrestha/async.vim'
 
     " make vim project-aware
     Plug 'airblade/vim-rooter'

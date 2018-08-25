@@ -221,6 +221,10 @@ function mux() {
         tmux split-window -h -t "$TMUX_SESSION:3"
         tmux split-window -v -t "$TMUX_SESSION:3.0"
         tmux split-window -v -t "$TMUX_SESSION:3.2"
+
+        # two equal panes for connecting to remote servers
+        tmux new-window -t "$TMUX_SESSION:4" -n "servers"
+        tmux split-window -h -t "$TMUX_SESSION:4"
     fi
 
     # attach to first pane of first window

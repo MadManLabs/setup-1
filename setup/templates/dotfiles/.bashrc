@@ -95,8 +95,7 @@ fi
 # pipenv
 
 if command -v pipenv &> /dev/null; then
-    # TODO: uncomment this after new pipenv released - issue #2479 on github
-     echo 'eval "$(pipenv --completion)"'
+    eval "$(pipenv --completion)"
 fi
 
 # completion for macos "defaults" command
@@ -109,7 +108,7 @@ if type _git &> /dev/null && [ -f /usr/local/etc/bash_completion.d/git-completio
     complete -o default -o nospace -F _git g;
 fi;
 
-# bash prompt
+# load bash prompt
 
 if [ -f ~/.bash_prompt ]; then
     # shellcheck disable=SC1090

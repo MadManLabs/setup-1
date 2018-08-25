@@ -5,8 +5,8 @@ import getpass
 import semver
 import sys
 
-from setup.os.mac import Mac
-from setup.utils.logger import Logger
+from strategies.mac import Mac
+from utils import echo
 
 
 required_os_version = '>=10.13.0'
@@ -33,34 +33,28 @@ To start, simply enter your password when prompted.
 @click.option('-v', '--verbose', is_flag=True, help='Enables verbose mode.')
 @click.option('-a', '--install-all', is_flag=True, help='Install all programs, languages, and packages.')
 @click.option('-d', '--dry-run', is_flag=True, help='Do not actually run any commands, and instead print them out')
-def start(verbose, install_all, dry_run):
-    # welcome message
-    click.secho(welcome % (getpass.getuser(), cli_version), fg='white', bold=True)
+def run(verbose, install_all, dry_run):
+    echo.info(welcome % (getpass.getuser(), cli_version), bold=True)
 
-    # get password
     password = getpass.getpass('Enter your password: ')
     computer = Mac(password)
 
     # make sure macos version is correct
-    click.echo()
-    click.echo('Checking macOS version...')
+    echo.info('Checking macOS version...')
 
     if not semver.match(computer.version, required_os_version):
-        click.secho(version_err_msg % (computer.version, required_os_version), fg='red', bold=True, err=True)
-        click.echo()
+        echo.error(version_err_msg % (computer.version, required_os_version))
         sys.exit(1)
     else:
-        click.secho(version_success_msg % computer.version, fg='green', bold=True)
-        click.echo()
+        echo.success(version_success_msg % computer.version)
 
     # xcode command line tools
     if not computer.has_command_line_tools:
-        click.echo('Installing command line tools...')
+        echo.info('Installing command line tools...')
         clt_success = computer.install_command_line_tools()
 
         if not clt_success:
-            click.secho('Failed to install the Command Line Tools. Try again or install manually: xcode-select --install', fg='red', bold=True, err=True)
-            sys.exit(1)
+            echo.error('Failed to install Command Line Tools. Try again or run: xcode-select --install', exit=True)
 
     else:
-        click.echo('Command line tools already installed, continuing...')
+        echo.info('Command line tools already installed, continuing...')

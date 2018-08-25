@@ -8,7 +8,7 @@ dev:
 	pipenv run python setup
 
 lint:
-	pipenv run flake8 setup
+	pipenv run pycodestyle setup
 
 test:
 	pipenv run pytest tests

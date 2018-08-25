@@ -39,10 +39,10 @@ alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
 
-# silver searcher
+# ripgrep
 
-alias ags='ag -iQ'
-alias agf='ag -l'
+alias rgs="rg --smart-case --fixed-strings --line-number --color=always"
+alias rgf="rg -l --smart-case --fixed-strings --line-number --color=always"
 
 # usage info
 
@@ -57,6 +57,8 @@ alias localip="ipconfig getifaddr en0"
 # git
 
 alias g='git'
+alias wip='git add -A && git commit -m "Work in progress"'
+alias gcm='git checkout master'
 
 # misc. tools
 
@@ -73,3 +75,7 @@ alias space='df -P -kHl'
 # brew
 
 alias bubu='brew update && brew upgrade'
+
+# stupid stuff
+
+alias fuckoff='exit'

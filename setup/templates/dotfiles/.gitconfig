@@ -4,13 +4,13 @@
 # --------
 
 [alias]
-    # b == branch
+    # b for branch
     b = branch
 
-    # s == status
+    # s for status
     s = status
 
-    # c == checkout
+    # c for checkout
     co = checkout
 
     # fancier logging
@@ -124,6 +124,3 @@
     process = git-lfs filter-process
     clean = git-lfs clean -- %f
     smudge = git-lfs smudge -- %f
-[user]
-    name = Ty-Lucas Kelley
-    email = tylucaskelley@gmail.com

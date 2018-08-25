@@ -4,6 +4,7 @@ import os
 import platform
 import subprocess
 
+from utils import echo
 
 class Mac(object):
     '''
@@ -28,8 +29,21 @@ class Mac(object):
 
         self.__password = password
 
+        if self.__invalid_password():
+            echo.error('Provided password is invalid, try again.', exit=True)
+
         self.version = platform.mac_ver()[0]
         self.command_line_tools_path = '/Library/Developer/CommandLineTools'
+
+    def __invalid_password(self):
+        '''
+        Checks if provided password is correct.
+
+        Returns:
+            bool: Whether or not password is correct.
+        '''
+
+        return True if self.sudo('/bin/ls')[2] > 0 else False
 
     def __run(self, args_list, is_sudo=False):
         '''
@@ -81,7 +95,7 @@ class Mac(object):
             tuple: stdout, stderr, return code
         '''
 
-        args = ['sudo', '-S'] + command.split()
+        args = ['/usr/bin/sudo', '-S'] + command.split()
         return self.__run(args, is_sudo=True)
 
     def has_command_line_tools(self):

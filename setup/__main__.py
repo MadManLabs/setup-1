@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from setup.cli import start
+from cli import run
 
 
-start()
+run()
