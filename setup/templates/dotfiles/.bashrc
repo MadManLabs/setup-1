@@ -12,7 +12,7 @@ files=(
     ~/.exports
     ~/.functions
     ~/.git-prompt.sh
-    ~/.env # goes last to override any default settings
+    ~/.env # placed last for precedence
 )
 
 for file in "${files[@]}"; do
@@ -37,6 +37,10 @@ options=(
 for option in "${options[@]}"; do
     shopt -s "$option"
 done
+
+# fuck
+
+eval "$(thefuck --alias)"
 
 # autojump
 

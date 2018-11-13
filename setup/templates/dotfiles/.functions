@@ -6,6 +6,19 @@
 # useful utility functions
 # --------
 
+# Run something n times
+#
+# Params:
+#     n - Number of iterations
+#     args - Command and arguments to loop
+#
+# Usage: loop n args
+function loop() {
+    for (( n=0; n<$1; n++ ))
+        do ${*:2}
+    done
+}
+
 # Test for true color (24-bit) support
 #
 # Usage: truecolor
@@ -147,16 +160,40 @@ function print() {
     fi
 }
 
+# Converts a WMV file to mp4
+#
+# Params:
+#     infile - input file (.wmv)
+#
+# Usage: wmv2mp4 input.wmv output.mp4
+#
+function wmv2mp4() {
+    usage="usage: wmv2mp4 input"
+
+    if [ -z "$1" ]; then
+        print "$usage"
+        return 1
+    elif command -v ffmpeg &> /dev/null; then
+        filename="$(echo "$1" | cut -d . -f 1)"
+
+        ffmpeg -i "$1" -c:v libx264 -crf 23 -c:a aac -q:a 100 "$filename.mp4"
+
+        print -b -l 4 "$1 converted and saved to $2"
+    else
+        print -b -l 3 "fatal: ffmpeg is not installed"
+    fi
+}
+
 # Converts Quicktime screen recording to a gif
 #
 # Params:
 #     infile - input file (.mov)
-#     outfile - output file (.gif)
+#     outfile - output filename (.gif)
 #
 # Usage: mov2gif infile outfile
 #
 function mov2gif() {
-    usage="usage: mov2gif input output"
+    usage="usage: mov2gif input.mov output.gif"
 
     if [ -z "$1" ] || [ -z "$2" ]; then
         print "$usage"
@@ -217,14 +254,10 @@ function mux() {
         tmux send-keys -t "$TMUX_SESSION:2.1" "$stats_command" C-m
 
         # set up 4 equal panes, useful for watching logs
-        tmux new-window -t "$TMUX_SESSION:3" -n "logs"
+        tmux new-window -t "$TMUX_SESSION:3" -n "misc"
         tmux split-window -h -t "$TMUX_SESSION:3"
         tmux split-window -v -t "$TMUX_SESSION:3.0"
         tmux split-window -v -t "$TMUX_SESSION:3.2"
-
-        # two equal panes for connecting to remote servers
-        tmux new-window -t "$TMUX_SESSION:4" -n "servers"
-        tmux split-window -h -t "$TMUX_SESSION:4"
     fi
 
     # attach to first pane of first window
@@ -373,8 +406,8 @@ function update() (
     print -b -l 1 -- "$(__header 'Node.js modules')\n"
 
     if command -v npm &> /dev/null; then
-        node_info="node $(node -v): $(which node)"
-        npm_info="npm $(npm -v): $(which npm)"
+        node_info="node $(node -v): $(command -v node)"
+        npm_info="npm $(npm -v): $(command -v npm)"
         npm_packages="$(npm outdated -g --parseable --depth 0 | cut -d : -f 4)"
 
         print -b -l 2 "Make sure you want to update this Node.js version before continuing:"
@@ -418,8 +451,8 @@ function update() (
     print -b -l 1 -- "$(__header 'Ruby gems')\n"
 
     if command -v gem &> /dev/null; then
-        gem_info="gem $(gem -v): $(which gem)"
-        ruby_info="$(ruby -v | cut -d ' ' -f 1 -f 2): $(which ruby)"
+        gem_info="gem $(gem -v): $(command -v gem)"
+        ruby_info="$(ruby -v | cut -d ' ' -f 1 -f 2): $(command -v ruby)"
         gem_packages="$(gem outdated | cut -d ' ' -f 1)"
 
         print -b -l 2 "Make sure you want to update this Ruby version before continuing:"
@@ -468,7 +501,7 @@ function update() (
         # shellcheck disable=SC2086
         pyenv global $current_python
 
-        python2_info="$(python2 --version 2>&1): $(which python2)"
+        python2_info="$(python2 --version 2>&1): $(command -v python2)"
         pip2_info="$(pip2 --version)"
         pip2_packages="$(pip2 list --no-cache-dir --outdated --format=columns | cut -d ' ' -f 1 | awk '{if(NR>2)print}')"
 
@@ -506,7 +539,7 @@ function update() (
             print -b -l 2 "Python 2 could not be found, continuing..."
         fi
 
-        python3_info="$(python3 --version 2>&1): $(which python3)"
+        python3_info="$(python3 --version 2>&1): $(command -v python3)"
         pip3_info="$(pip3 --version)"
         pip3_packages="$(pip3 list --no-cache-dir --outdated --format=columns | cut -d ' ' -f 1 | awk '{if(NR>2)print}')"
 

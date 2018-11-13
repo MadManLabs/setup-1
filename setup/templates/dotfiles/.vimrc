@@ -6,7 +6,7 @@ set fileencoding=utf-8
 " Description: Vim configuration
 " Author: Ty-Lucas Kelley <tylucaskelley@gmail.com>
 " Source: https://tylucaskelley.com
-" Last Modified: 1 August 2018
+" Last Modified: 31 August 2018
 " --------
 
 " -------- sections --------
@@ -43,6 +43,10 @@ filetype plugin indent on
 " ---------------
 " 2. key mappings
 " ---------------
+
+" alias di./yi. to delete/copy text between two periods
+" nnoremap di. f.dF.
+" nnoremap yi. f.yT.
 
 " kill search result highlighting
 nnoremap <silent> <CR> :noh<CR><CR>
@@ -93,6 +97,12 @@ nnoremap <leader>. :source ~/.vimrc<CR>
 
 " remove all trailing whitespace in file
 nnoremap <leader>w :let _s=@/<Bar>:%s/\s\+$//e<Bar>:let @/=_s<Bar><CR>
+
+" change 4 space indentation to 2
+nnoremap <leader>2 :%s;^\(\s\+\);\=repeat(' ', len(submatch(0))/2);g<CR>:set ts=2 sts=2 noet<CR><CR>
+
+" change 2 space indentation to 4
+nnoremap <leader>4 :%s/^\s*/&&<CR>:set ts=4 sts=4 et<CR><CR>
 
 " re-indent entire file
 nnoremap <leader>i mzgg=G`z`
@@ -185,6 +195,9 @@ endif
 
 " filename completion
 if has('wildmenu')
+    " ignore case
+    set wildignorecase
+
     " ignore some filetypes
     set wildignore+=*.a,*.o
     set wildignore+=*.pyc,*.egg
@@ -268,9 +281,6 @@ augroup END
 " ------------------------
 " 6. text, indent, folding
 " ------------------------
-
-" omnicompletion
-set omnifunc=syntaxcomplete#Complete
 
 " sync with system clipboard
 if has('clipboard')
@@ -471,12 +481,16 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
 
     let g:fzf_history_dir='~/.local/share/fzf-history'
 
-    " initiate file search
-    nnoremap <silent> <leader>f :FzfFiles<CR>
+    " fuzzy file finding
+    nnoremap <silent> <leader>f :FzfGFiles<CR>
+    nnoremap <silent> <leader>F :FzfFiles<CR>
     nnoremap <silent> <leader>r :FzfRg<CR>
 
     command! -bang -nargs=? -complete=dir FzfFiles
         \ call fzf#vim#files(<q-args>, fzf#vim#with_preview(), <bang>0)
+
+    command! -bang -nargs=? -complete=dir FzfGFiles
+        \ call fzf#vim#gitfiles(<q-args>, fzf#vim#with_preview(), <bang>0)
 
     command! -bang -nargs=* FzfRg
         \ call fzf#vim#grep(
@@ -509,17 +523,28 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
         \ 'markdown': [ 'markdownlint' ],
         \ 'python': [ 'pycodestyle' ],
         \ 'ruby': [ 'rubocop' ],
+        \ 'ruby-sinatra': [ 'rubocop' ],
         \ 'sass': [ 'stylelint' ],
-        \ 'scss': [ 'prettier' ]
+        \ 'scss': [ 'prettier' ],
+        \ 'sh': [ 'shellcheck' ]
     \ }
+    let g:ale_ruby_rubocop_executable='bundle'
 
     " -------------------------
     " filetype-specific plugins
     " -------------------------
 
     " html / css
+    Plug 'JulesWang/css.vim'
     Plug 'ap/vim-css-color'
     Plug 'mattn/emmet-vim'
+
+    let g:user_emmet_settings={
+        \ 'javascript.jsx': {
+        \     'extends': 'jsx',
+        \ }
+    \ }
+
     Plug 'alvan/vim-closetag'
 
     let g:closetag_filenames='*.html,*.xhtml,*.phtml,*.xml,*.vue,*.jsx,*.js,*.erb'
@@ -531,6 +556,8 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
     let g:javascript_plugin_flow=1
 
     Plug 'leafgarland/typescript-vim'
+    Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
+    Plug 'yardnsm/vim-import-cost', { 'do': 'npm install' }
 
     " jsx
     Plug 'mxw/vim-jsx'
@@ -557,10 +584,16 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
     let g:vim_markdown_fenced_languages=[ 'csharp=cs', 'js=javascript', 'rb=ruby', 'c++=cpp', 'ini=dosini', 'bash=sh', 'viml=vim' ]
     let g:vim_markdown_conceal=0
 
-    " ruby / rails
+    " ruby
     Plug 'vim-ruby/vim-ruby'
     Plug 'tpope/vim-rails'
     Plug 'tpope/vim-bundler'
+    Plug 'asux/vim-capybara'
+    Plug 'hallison/vim-ruby-sinatra'
+
+    " graphviz
+
+    Plug 'wannesm/wmgraphviz.vim'
 
     " csv
     Plug 'chrisbra/csv.vim'
@@ -594,6 +627,11 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
     " -----
     " misc.
     " -----
+
+    " emoji support
+    Plug 'junegunn/vim-emoji'
+
+    set completefunc=emoji#complete
 
     " standardize vim async api
     Plug 'prabirshrestha/async.vim'

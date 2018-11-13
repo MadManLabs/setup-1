@@ -7,6 +7,9 @@
     # b for branch
     b = branch
 
+    # d for diff
+    d = diff
+
     # s for status
     s = status
 
@@ -124,3 +127,6 @@
     process = git-lfs filter-process
     clean = git-lfs clean -- %f
     smudge = git-lfs smudge -- %f
+[user]
+	name = Ty-Lucas Kelley
+	email = tylucaskelley@gmail.com
