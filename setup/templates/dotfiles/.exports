@@ -72,7 +72,6 @@ path=(
     "/usr/sbin"
     "/bin"
     "/sbin"
-    "/opt/X11/bin"
     "/Library/TeX/texbin"
 )
 

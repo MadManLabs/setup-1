@@ -275,6 +275,29 @@ function server() {
     python -m http.server "${1:-8080}"
 }
 
+# Installs all peer dependencies for package in current directory
+#
+# Usage: npm-ip
+#
+function npm-ip() {
+    if [ -f package.json ]; then
+        registry="$(npm get registry)"
+        name="$(ruby -rjson -e 'pkg = JSON.parse(File.read("package.json")); puts pkg["name"]')"
+        version="$(ruby -rjson -e 'pkg = JSON.parse(File.read("package.json")); puts pkg["version"]')"
+        package="${name}@${version}"
+
+        if npm info "$package" &> /dev/null; then
+            npm info "${package}" peerDependencies --json | \
+                command sed 's/[\{\},]//g ; s/: /@/g' | \
+                xargs npm install --save-dev
+        else
+            print -b -l 3 "fatal: could not find $package in registry $registry"
+        fi
+    else
+        print -b -l 3 "fatal: no package.json file found, or npm/ruby missing"
+    fi
+}
+
 # Upgrade most things on the computer
 #
 # Usage: update

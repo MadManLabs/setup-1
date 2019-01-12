@@ -52,6 +52,9 @@
     # change origin URL
     set-url = "!f() { git remote set-url origin \"$1\"; }; f"
 
+    # purge file from histoy
+    purge = "!f() { [ ! -z \"$1\" ] && git filter-branch --force --index-filter 'git rm --cached --ignore-unmatch \"$1\"' --prune-empty --tag-name-filter cat -- --all; }; f"
+
     # set upstream of <branch> to origin/<branch>
     su = "!f() { git branch --set-upstream-to=origin/\"$1\" \"$1\"; }; f"
 
@@ -127,6 +130,3 @@
     process = git-lfs filter-process
     clean = git-lfs clean -- %f
     smudge = git-lfs smudge -- %f
-[user]
-	name = Ty-Lucas Kelley
-	email = tylucaskelley@gmail.com
