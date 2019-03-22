@@ -83,6 +83,11 @@ alias space='df -P -kHl'
 
 alias bubu='brew update && brew upgrade --ignore-pinned'
 
+# kill the dock (for ubar)
+
+alias dock-off='defaults write com.apple.dock autohide-delay -float 1000 && killall Dock'
+alias dock-on='defaults delete com.apple.dock autohide-delay && killall Dock'
+
 # stupid stuff
 
 alias fuckoff='exit'

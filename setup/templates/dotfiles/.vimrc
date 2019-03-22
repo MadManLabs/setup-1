@@ -210,6 +210,7 @@ endif
 augroup RecognizeFiles
   autocmd!
   autocmd BufRead,BufNewFile,BufFilePre .{artilleryrc,babelrc,eslintrc,jsdocrc,nycrc,stylelintrc,markdownlintrc,tern-project,tern-config} set filetype=json
+  autocmd BufRead,BufNewFile,BufFilePre .prettierrc set filetype=yaml
   autocmd BufRead,BufNewFile,BufFilePre .{flake8,licenser,flowconfig} set filetype=dosini
   autocmd BufRead,BufNewFile,BufFilePre .{sequelizerc,jestconfig} set filetype=javascript
   autocmd BufRead,BufNewFile,BufFilePre *.jsx set filetype=javascript.jsx
@@ -522,6 +523,7 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
   let g:ale_linters_explicit=1
 
   let g:ale_linter_aliases={
+    \ 'vue': [ 'css', 'typescript' ],
     \ 'jsx': [ 'css', 'javascript' ],
     \ 'tsx': [ 'css', 'typescript' ]
   \ }
@@ -532,6 +534,7 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
     \ 'jsx': [ 'stylelint', 'eslint' ],
     \ 'typescript': [ 'stylelint', 'eslint' ],
     \ 'tsx': [ 'stylelint', 'eslint' ],
+    \ 'vue': [ 'stylelint', 'eslint' ],
     \ 'markdown': [ 'markdownlint' ],
     \ 'python': [ 'pycodestyle' ],
     \ 'ruby': [ 'rubocop' ],
@@ -554,6 +557,8 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
     Plug 'roxma/vim-hug-neovim-rpc'
   endif
 
+  let g:node_host_prog=expand('/usr/local/bin/neovim-node-host')
+
   let g:python_host_prog=expand('~/.pyenv/versions/neovim2/bin/python')
   let g:python3_host_prog=expand('~/.pyenv/versions/neovim3/bin/python')
 
@@ -575,9 +580,9 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
 
   Plug 'alvan/vim-closetag'
 
-  let g:closetag_filenames='*.html,*.xhtml,*.phtml,*.xml,*.vue,*.jsx,*.js,*.erb'
+  let g:closetag_filenames='*.html,*.xhtml,*.phtml,*.xml,*.vue,*.jsx,*.js,*.erb,*.tsx'
 
-  " javascript / typescript
+  " javascript / typescript / coffeescript
   Plug 'pangloss/vim-javascript'
 
   let g:javascript_plugin_jsdoc=1
@@ -588,6 +593,8 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
   Plug 'styled-components/vim-styled-components', { 'branch': 'main' }
   Plug 'yardnsm/vim-import-cost', { 'do': 'npm install' }
   Plug 'prettier/vim-prettier', { 'do': 'npm install' }
+
+  Plug 'kchmck/vim-coffee-script'
 
   " jsx / tsx
   Plug 'maxmellon/vim-jsx-pretty'
@@ -641,6 +648,9 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
   " vim
   Plug 'junegunn/vader.vim'
 
+  " jenkins
+  Plug 'martinda/Jenkinsfile-vim-syntax'
+
   " -------
   " testing
   " -------
@@ -653,6 +663,7 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
   nnoremap <leader>T :TestNearest<CR>
 
   let test#strategy='dispatch'
+  let test#ruby#minitest#file_pattern='\.test\.rb'
 
   " -----
   " misc.
@@ -679,6 +690,9 @@ if !empty(glob('~/.vim/autoload/plug.vim'))
 
   " look up documentation
   Plug 'keith/investigate.vim'
+
+  " better find and replace
+  Plug 'tpope/vim-abolish'
 
   let g:investigate_use_dash=1
 

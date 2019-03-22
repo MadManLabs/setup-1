@@ -35,199 +35,199 @@ node_color="$blue"
 # git diff
 
 function git_branch() {
-    local br
+  local br
 
-    br="$(__git_ps1 | tr -d '()')"
+  br="$(__git_ps1 | tr -d '()')"
 
-    if [ -n "$br" ]; then
-        echo " on\[${bold}\]\[${branch_color}\]$br"
-    fi
+  if [ -n "$br" ]; then
+    echo " on\[${bold}\]\[${branch_color}\]$br"
+  fi
 }
 
 function git_untracked() {
-    local num
+  local num
 
-    num="$(git status --porcelain 2> /dev/null | grep -c "^??")"
+  num="$(git status --porcelain 2> /dev/null | grep -c "^??")"
 
-    if [ "$num" -eq 0 ]; then
-        return 0
-    fi
+  if [ "$num" -eq 0 ]; then
+    return 0
+  fi
 
-    return 1
+  return 1
 }
 
 function git_ahead() {
-    local branch
-    local remote_exists
-    local num
+  local branch
+  local remote_exists
+  local num
 
-    branch="$(git name-rev --name-only HEAD 2> /dev/null)"
+  branch="$(git name-rev --name-only HEAD 2> /dev/null)"
 
-    # shellcheck disable=SC2034
-    remote_exists=$(git rev-parse --verify --quiet origin/"$branch")
+  # shellcheck disable=SC2034
+  remote_exists=$(git rev-parse --verify --quiet origin/"$branch")
 
-    # shellcheck disable=SC2181
-    if [ "$?" == "0" ]; then
-        num=$(git log origin/"$branch".."$branch" --oneline | wc -l)
-        echo "$num"
-    else
-        echo 0
-    fi
+  # shellcheck disable=SC2181
+  if [ "$?" == "0" ]; then
+    num=$(git log origin/"$branch".."$branch" --oneline | wc -l)
+    echo "$num"
+  else
+    echo 0
+  fi
 }
 
 function git_behind() {
-    local branch
-    local remote_exists
-    local num
+  local branch
+  local remote_exists
+  local num
 
-    branch="$(git name-rev --name-only HEAD 2> /dev/null)"
+  branch="$(git name-rev --name-only HEAD 2> /dev/null)"
 
-    # shellcheck disable=SC2034
-    remote_exists=$(git rev-parse --verify --quiet origin/"$branch")
+  # shellcheck disable=SC2034
+  remote_exists=$(git rev-parse --verify --quiet origin/"$branch")
 
-    # shellcheck disable=SC2181
-    if [ "$?" == "0" ]; then
-        num=$(git log "$branch"..origin/"$branch" --oneline | wc -l)
-        echo "$num"
-    else
-        echo 0
-    fi
+  # shellcheck disable=SC2181
+  if [ "$?" == "0" ]; then
+    num=$(git log "$branch"..origin/"$branch" --oneline | wc -l)
+    echo "$num"
+  else
+    echo 0
+  fi
 }
 
 function git_changed() {
-    git diff --no-ext-diff --quiet --exit-code &> /dev/null
+  git diff --no-ext-diff --quiet --exit-code &> /dev/null
 }
 
 function git_clean() {
-    local num
+  local num
 
-    num="$(git status --porcelain 2> /dev/null | wc -l)"
+  num="$(git status --porcelain 2> /dev/null | wc -l)"
 
-    if [ "$num" -eq 0 ]; then
-        return 0
-    fi
+  if [ "$num" -eq 0 ]; then
+    return 0
+  fi
 
-    return 1
+  return 1
 }
 
 function git_staged() {
-    local num
+  local num
 
-    num="$(git diff --name-only --cached 2> /dev/null | wc -l)"
+  num="$(git diff --name-only --cached 2> /dev/null | wc -l)"
 
-    if [ "$num" -eq 0 ]; then
-        return 0
-    fi
+  if [ "$num" -eq 0 ]; then
+    return 0
+  fi
 
-    return 1
+  return 1
 }
 
 function git_diff() {
-    local diff_prompt
-    local local_prompt
-    local branch_prompt
-    local ahead
-    local behind
+  local diff_prompt
+  local local_prompt
+  local branch_prompt
+  local ahead
+  local behind
 
-    git rev-parse --git-dir &> /dev/null
+  git rev-parse --git-dir &> /dev/null
 
-    # shellcheck disable=SC2181
-    if [ "$?" != "0" ]; then
-        return 1
-    fi
+  # shellcheck disable=SC2181
+  if [ "$?" != "0" ]; then
+    return 1
+  fi
 
-    local diff_prompt=""
+  local diff_prompt=""
 
-    local local_prompt=""
-    local branch_prompt=""
+  local local_prompt=""
+  local branch_prompt=""
 
-    git_clean
+  git_clean
 
-    # shellcheck disable=SC2181
-    if [ "$?" == "0" ]; then
-        local_prompt+="✔"
-    fi
+  # shellcheck disable=SC2181
+  if [ "$?" == "0" ]; then
+    local_prompt+="✔"
+  fi
 
-    git_changed
+  git_changed
 
-    if [ "$?" == "1" ]; then
-        local_prompt+="*"
-    fi
+  if [ "$?" == "1" ]; then
+    local_prompt+="*"
+  fi
 
-    git_untracked
+  git_untracked
 
-    if [ "$?" == "1" ]; then
-        local_prompt+="+"
-    fi
+  if [ "$?" == "1" ]; then
+    local_prompt+="+"
+  fi
 
-    git_staged
+  git_staged
 
-    if [ "$?" == "1" ]; then
-        local_prompt+="^"
-    fi
+  if [ "$?" == "1" ]; then
+    local_prompt+="^"
+  fi
 
-    ahead="$(git_ahead | tr -d '[:space:]')"
+  ahead="$(git_ahead | tr -d '[:space:]')"
 
-    if [ "$ahead" != "0" ]; then
-        branch_prompt+="↑$ahead"
-    fi
+  if [ "$ahead" != "0" ]; then
+    branch_prompt+="↑$ahead"
+  fi
 
-    behind="$(git_behind | tr -d '[:space:]')"
+  behind="$(git_behind | tr -d '[:space:]')"
 
-    if [ "$behind" != "0" ]; then
-        branch_prompt+="↓$behind"
-    fi
+  if [ "$behind" != "0" ]; then
+    branch_prompt+="↓$behind"
+  fi
 
-    if [[ ! ${#branch_prompt} -eq 0 ]]; then
-        diff_prompt+="$branch_prompt|$local_prompt"
-    else
-        diff_prompt+="$local_prompt"
-    fi
+  if [[ ! ${#branch_prompt} -eq 0 ]]; then
+    diff_prompt+="$branch_prompt|$local_prompt"
+  else
+    diff_prompt+="$local_prompt"
+  fi
 
-    if [[ ! ${#diff_prompt} -eq 0 ]]; then
-        echo -e " [${diff_prompt}]"
-    fi
+  if [[ ! ${#diff_prompt} -eq 0 ]]; then
+    echo -e " [${diff_prompt}]"
+  fi
 }
 
 # python
 
 function python_env() {
-    if [[ -n ${VIRTUAL_ENV-} ]]; then
-        echo " (${VIRTUAL_ENV##*/})"
-    fi
+  if [[ -n ${VIRTUAL_ENV-} ]]; then
+    echo " (${VIRTUAL_ENV##*/})"
+  fi
 }
 
 # node
 
 function node_env() {
-    if export | grep -Eq '^declare -x NODE_ENV=.+'; then
-        echo " (NODE_ENV: $NODE_ENV)"
-    fi
+  if export | grep -Eq '^declare -x NODE_ENV=.+'; then
+    echo " (NODE_ENV: $NODE_ENV)"
+  fi
 }
 
 # set prompt
 
 function set_prompt() {
-    local err=$?
+  local err=$?
 
-    if [ "$err" != "0" ]; then
-        prompt_color="$red"
-        prompt_icon="✗"
-    else
-        prompt_color="$white"
-        prompt_icon="➜"
-    fi
+  if [ "$err" != "0" ]; then
+    prompt_color="$red"
+    prompt_icon="✗"
+  else
+    prompt_color="$white"
+    prompt_icon="➜"
+  fi
 
-    PS1="\[${bold}\]\[${user_color}\]\u\[${reset}\]" # battery, user
-    PS1+="\[${white}\] at \[${bold}\]\[${host_color}\]\h\[${reset}\]" # host
-    PS1+="\[${white}\] in \[${bold}\]\[${dir_color}\]\w\[${reset}\]" # cwd
+  PS1="\[${bold}\]\[${user_color}\]\u\[${reset}\]" # battery, user
+  PS1+="\[${white}\] at \[${bold}\]\[${host_color}\]\h\[${reset}\]" # host
+  PS1+="\[${white}\] in \[${bold}\]\[${dir_color}\]\w\[${reset}\]" # cwd
 
-    PS1+="$(git_branch)\[${reset}\]" # git branch
-    PS1+="\[${bold}\]\[${diff_color}\]$(git_diff)\[${reset}\]" # git diff & pushable commits
+  PS1+="$(git_branch)\[${reset}\]" # git branch
+  PS1+="\[${bold}\]\[${diff_color}\]$(git_diff)\[${reset}\]" # git diff & pushable commits
 
-    PS1+="\[${bold}\]\[${virtualenv_color}\]$(python_env)\[${node_color}\]$(node_env)\[${reset}\]" # python virtualenv and NODE_ENV
+  PS1+="\[${bold}\]\[${virtualenv_color}\]$(python_env)\[${node_color}\]$(node_env)\[${reset}\]" # python virtualenv and NODE_ENV
 
-    PS1+="\n\[${time_color}\](\@) \[${prompt_color}\]${prompt_icon}\[${reset}\] "
+  PS1+="\n\[${time_color}\](\@) \[${prompt_color}\]${prompt_icon}\[${reset}\] "
 }
 
 # change this if autojump not installed

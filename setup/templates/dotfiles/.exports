@@ -64,15 +64,15 @@ export COLORFGBG="default;default"
 # path
 
 path=(
-    "$GOPATH/bin"
-    "$CARGOPATH/bin"
-    "/usr/local/bin"
-    "/usr/local/sbin"
-    "/usr/bin"
-    "/usr/sbin"
-    "/bin"
-    "/sbin"
-    "/Library/TeX/texbin"
+  "$GOPATH/bin"
+  "$CARGOPATH/bin"
+  "/usr/local/bin"
+  "/usr/local/sbin"
+  "/usr/bin"
+  "/usr/sbin"
+  "/bin"
+  "/sbin"
+  "/Library/TeX/texbin"
 )
 
 # shellcheck disable=SC2178
